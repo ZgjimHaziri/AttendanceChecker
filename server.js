@@ -1,18 +1,39 @@
-const io = require('socket.io')(3000);
+const express = require('express');
+const server = express();
+const http = require('http').Server(server);
+const io = require('socket.io')(http);
+
+server.use(express.static('public'));
 
 const users = {};
 
-io.on('connection', socket => {
-  console.log('Yes');
-  socket.on('new-user', name => {
-    users[socket.id] = name;
-    socket.broadcast.emit('user-connected', name)
-  });
-  socket.on('send-chat-message', message => {
-    socket.broadcast.emit('chat-message', { message: message, name: users[socket.id] })
-  });
-  socket.on('disconnect', () => {
-    socket.broadcast.emit('user-disconnected', users[socket.id]);
-    delete users[socket.id]
-  })
+http.listen(3000, () => {
+    console.log('Server started at: 3000');
+});
+
+server.get('/', function(req, res){
+    res.sendFile(__dirname + '/index.html');
+});
+
+io.on('connection', function (socket) {
+    io.sockets.emit('user-joined', { clients:  Object.keys(io.sockets.clients().sockets), count: io.engine.clientsCount, joinedUserId: socket.id});
+    socket.on('signaling', function(data) {
+        io.to(data.toId).emit('signaling', { fromId: socket.id, ...data });
+    });
+    socket.on('disconnect', function() {
+        io.sockets.emit('user-left', socket.id)
+    })
+
+    //prej chat-it
+    socket.on('new-user', name => {
+        users[socket.id] = name;
+        socket.broadcast.emit('user-connected', name)
+    });
+    socket.on('send-chat-message', message => {
+        socket.broadcast.emit('chat-message', { message: message, name: users[socket.id] })
+    });
+    socket.on('disconnect', () => {
+        socket.broadcast.emit('user-disconnected', users[socket.id]);
+        delete users[socket.id]
+    })
 });

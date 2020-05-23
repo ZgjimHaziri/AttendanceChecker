@@ -13,7 +13,13 @@ body
     align-items: center;
 
     padding:20px;
+    overflow: scroll;
 }
+
+.grid-container::-webkit-scrollbar {
+    display: none;
+}
+
 .grid-item
 {
     background-color: rgba(255, 255, 255, 0.8);
@@ -213,4 +219,19 @@ body
 	padding: 5px;
 	height: 40px;
 	flex: 1;
+}
+
+.name
+{
+    position: fixed;
+
+    border: 1px solid;
+
+    max-width: 650px;
+    max-height: 300px;
+
+    width: 650px;
+    height: 300px;
+
+    font-size: 25px;
 }

@@ -3,8 +3,9 @@ const messageContainer = document.getElementById('chat-messages');
 const messageForm = document.getElementById('chat-form');
 const messageInput = document.getElementById('msg');
 
+
+//Duhet me databaze
 const name = 'You';
-appendMessage('You joined');
 socket.emit('new-user', name);
 
 socket.on('chat-message', data => {
@@ -13,11 +14,11 @@ socket.on('chat-message', data => {
 });
 
 socket.on('user-connected', name => {
-  appendMessage(`${name} connected`)
+
 });
 
 socket.on('user-disconnected', name => {
-  appendMessage(`${name} disconnected`)
+
 });
 
 messageForm.addEventListener('submit', e => {
