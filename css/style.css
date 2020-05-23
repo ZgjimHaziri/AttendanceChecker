@@ -127,6 +127,16 @@ a {
 	flex: 1;
 }
 
+#email{
+	width:420px;
+	height:40px;
+}
+
+#pass{
+	width:420px;
+	height:40px;
+}
+
 /* Join Page */
 .join-container {
 	max-width: 500px;
