@@ -5,13 +5,59 @@
     <link rel="stylesheet" href="css/grid-style.css">
     <link rel="stylesheet" href="css/main-style.css" />
     <link rel="stylesheet" href="css/style.css" />
+    <link rel="stylesheet" href="css/sidebar.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css"
         integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous" />
     <script defer src="http://localhost:3000/socket.io/socket.io.js"></script>
     <script defer src="js/client.js"></script>
+    <script>
+        function toggleButton() {
+            if (!document.getElementById("mySidebar").style.cssText !== '' && document.getElementById("mySidebar").style.width !== '611px') {
+                document.getElementById("mySidebar").style.width = "611px";
+                document.getElementById("main").style.marginLeft = "611px";
+                document.getElementById("mySidebar").style.height = "500px";
+            }
+            else {
+                if (document.getElementById("mySidebar").style.width === "0px") {
+                    document.getElementById("mySidebar").style.width = "611px";
+                    document.getElementById("main").style.marginLeft = "611px";
+                    document.getElementById("mySidebar").style.height = "500px";
+                }
+                else {
+                    document.getElementById("mySidebar").style.width = "0";
+                    document.getElementById("main").style.marginLeft = "0";
+                }
+            }
+        }
+    </script>
 </head>
 
 <body>
+
+    <div id="mySidebar" width="0px" class="sidebar">
+        <a href="#">Filan Fisteku</a>
+        <a href="#">Filan Fisteku</a>
+        <a href="#">Filan Fisteku</a>
+        <a href="#">Filan Fisteku</a>
+        <a href="#">Filan Fisteku</a>
+        <a href="#">Filan Fisteku</a>
+        <a href="#">Filan Fisteku</a>
+        <a href="#">Filan Fisteku</a>
+        <a href="#">Filan Fisteku</a>
+        <a href="#">Filan Fisteku</a>
+        <a href="#">Filan Fisteku</a>
+        <a href="#">Filan Fisteku</a>
+        <a href="#">Filan Fisteku</a>
+        <a href="#">Filan Fisteku</a>
+        <a href="#">Filan Fisteku</a>
+        <a href="#">Filan Fisteku</a>
+    </div>
+
+    <div id="main">
+        <button class="openbtn" onclick="toggleButton()"><img src="img/users-icon.png" width="33px"
+                height="33px" /></button>
+    </div>
+
     <div id="page-wrapper">
         <div class="grid-container" id="view-container">
             <div class="grid-item" id="personal-box">
