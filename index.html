@@ -12,20 +12,24 @@
     <script defer src="js/client.js"></script>
     <script>
         function toggleButton() {
-            if (!document.getElementById("mySidebar").style.cssText !== '' && document.getElementById("mySidebar").style.width !== '611px') {
-                document.getElementById("mySidebar").style.width = "611px";
-                document.getElementById("main").style.marginLeft = "611px";
-                document.getElementById("mySidebar").style.height = "500px";
+            if (!document.getElementById("mySidebar").style.cssText !== '' && document.getElementById("mySidebar").style.width !== '1200px') {
+                document.getElementById("mySidebar").style.display='block';
+                document.getElementById("mySidebar").style.width = "1200px";
+                document.getElementById("main").style.marginLeft = "567px";
+                document.getElementById("mySidebar").style.height = "567px";
+                
             }
             else {
                 if (document.getElementById("mySidebar").style.width === "0px") {
-                    document.getElementById("mySidebar").style.width = "611px";
-                    document.getElementById("main").style.marginLeft = "611px";
-                    document.getElementById("mySidebar").style.height = "500px";
+                    document.getElementById("mySidebar").style.width = "1200px";
+                    document.getElementById("main").style.marginLeft = "567px";
+                    document.getElementById("mySidebar").style.height = "567px";
                 }
                 else {
                     document.getElementById("mySidebar").style.width = "0";
                     document.getElementById("main").style.marginLeft = "0";
+                    document.getElementById("mytable").style.width = "0";
+                    document.getElementById("mytable").style.marginLeft = "0";          
                 }
             }
         }
@@ -36,9 +40,9 @@
 
     <div id="mySidebar"  class="sidebar">
         <p id="lenda">Programim i distribuar</p>
-        <table id="mytable">
-            <thead>
-                <tr >
+        <table id="tableId">
+            <thead id="headTable">
+                <tr id="rowTable">
                     <td id="emri">Emri dhe Mbiemri</td>
                     <td id="java1">Java 1</td>
                     <td id="java2">Java 2</td>
@@ -50,7 +54,7 @@
                     <td id="java8">Java 8</td>
                 </tr>
             </thead>
-            <tbody>
+            <tbody id="tbody">
                 <tr id="st1" class="st">
                     <td class="presence">Filan Fisteku</td>
                     <td class="presence"></td>
@@ -112,12 +116,11 @@
         </table>
     </div>
 
-    <div id="main">
-        <button class="openbtn" onclick="toggleButton()"><img src="img/users-icon.png" width="33px"
-                height="33px" /></button>
-    </div>
-
     <div id="page-wrapper">
+        <div id="main">
+            <button class="openbtn" onclick="toggleButton()"><img src="img/users-icon.png" width="33px"
+                    height="33px" /></button>
+        </div>
         <div class="grid-container" id="view-container">
             <div class="grid-item" id="personal-box">
                 <span class="name">You</span>
@@ -157,8 +160,6 @@
 
         <script src="https://cdnjs.cloudflare.com/ajax/libs/qs/6.9.2/qs.min.js"
             integrity="sha256-TDxXjkAUay70ae/QJBEpGKkpVslXaHHayklIVglFRT4=" crossorigin="anonymous"></script>
-        <!-- <script src="/socket.io/socket.io.js"></script> -->
-        <!--<script src="js/main.js"></script>-->
     </div>
 </body>
 <script type="text/javascript" src="js/view-mode.js"></script>

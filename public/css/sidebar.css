@@ -1,24 +1,22 @@
 .sidebar {
-    height: 670px;
- /*position: fixed;*/
+    /* height: 670px; */
+    position: fixed;
     z-index: 1;
-    top: 10px;
-    left: 0;
+    top: 39px;
+    left: -211;
     background-color: white;
     overflow-x: hidden;
     transition: 0.5s;
     padding-top: 20px;
     margin-left: 350px;
-    
-    width: 1200px;
-
+    display: none;
   }
   table
 {
   margin-left: 30px; 
   border-spacing: 50px; 
   text-align: left;
-  font-family:,helvetica, sans-serif;
+  font-family:helvetica, sans-serif;
   font-size: 18px;
   border-top: solid 1px #CFCFD0;
   color: #A9A9AA;  
@@ -32,7 +30,7 @@ table thead td
 .sidebar p
 {
    text-align: left;
-  font-family:,helvetica, sans-serif;
+  font-family:helvetica, sans-serif;
   font-size: 30px;
   margin-left: 80px;
   padding-top: 30px;
@@ -70,6 +68,7 @@ table thead td
     color: white;
     padding: 10px 15px;
     border: none;
+    float: right;
   }
   
   .openbtn:hover {
