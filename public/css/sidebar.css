@@ -80,4 +80,5 @@ table thead td
     padding: 16px;
     text-align: end;
     margin-left: -97px;
+    display: inline;
   }

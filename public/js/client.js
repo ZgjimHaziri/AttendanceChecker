@@ -3,7 +3,6 @@ const messageContainer = document.getElementById('chat-messages');
 const messageForm = document.getElementById('chat-form');
 const messageInput = document.getElementById('msg');
 
-
 //Duhet me databaze
 const name = 'You';
 socket.emit('new-user', name);

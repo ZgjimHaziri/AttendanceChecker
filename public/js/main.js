@@ -1,5 +1,6 @@
 const mediaStreamConstraints = {
-    video: true
+    video: true,
+    audio: true
 };
 const offerOptions = {
     offerToReceiveVideo: 1,
@@ -7,9 +8,20 @@ const offerOptions = {
 
 const userContainer = document.getElementById("view-container");
 const localVideo = document.getElementById('localVideo');
+
+const micBox = document.getElementById("mic-icon");
+const camBox = document.getElementById("cam-icon");
+
 let localStream;
 let localUserId;
 let connections = [];
+
+let localMediaStream;
+let localVideoTrack;
+let localAudioTrack;
+
+var mic_state = { };
+var video_state = { };
 
 function gotRemoteStream(event, userId) {
 
@@ -18,10 +30,96 @@ function gotRemoteStream(event, userId) {
     remoteVideo.setAttribute('data-socket', userId);
     remoteVideo.srcObject   = event.stream;
     remoteVideo.autoplay    = true;
-    remoteVideo.muted       = true;
+    remoteVideo.muted       = false;
     remoteVideo.playsinline = true;
     createUserBox(userId).appendChild(remoteVideo);
     gridView();
+}
+
+function manage_voice(userId)
+{
+    var webcam = document.querySelector('#' + userId + '>video');
+    console.log(webcam);
+
+    if(video_state[userId]==true)
+    {
+        webcam.play();
+    }
+    else
+    {
+        webcam.pause();
+    }
+
+    if(mic_state[userId]==true)
+    {
+        webcam.muted = false;
+    }
+    else
+    {
+        webcam.muted = true;
+    }
+}
+
+function turnOnOffCam()
+{
+    if(localMediaStream.getVideoTracks().length>0)
+    {
+        if (localMediaStream.getVideoTracks()[0].enabled)
+        {
+            localVideoTrack = localMediaStream.getVideoTracks()[0];
+            localMediaStream.getVideoTracks()[0].enabled = false;
+
+            camBox.setAttribute("src","img/off-video.png");
+        }
+        else
+        {
+            localMediaStream.active = true;
+            localMediaStream.getVideoTracks()[0].enabled = true;
+            camBox.setAttribute("src","img/on-video.png");
+        }
+        /*mediaStreamConstraints.video = false;*/
+    }
+    else
+    {
+        localMediaStream.active = true;
+        localMediaStream.getVideoTracks()[0] = localVideoTrack;
+        localMediaStream.getVideoTracks()[0].enabled = true;
+        camBox.setAttribute("src","img/on-video.png");
+        /*mediaStreamConstraints.video = true;*/
+    }
+    console.log(camBox);
+
+    getUserMediaSuccess(localMediaStream);
+}
+
+function turnOnOffMic()
+{
+    if(localMediaStream.getAudioTracks().length>0)
+    {
+        if (localMediaStream.getAudioTracks()[0].enabled)
+        {
+            localAudioTrack = localMediaStream.getAudioTracks()[0];
+            localMediaStream.getAudioTracks()[0].enabled = false;
+            micBox.setAttribute("src","img/muted.png");
+        }
+        else
+        {
+            /*localMediaStream.active = true;*/
+            localMediaStream.getAudioTracks()[0].enabled = true;
+            micBox.setAttribute("src","img/unmuted.png");
+        }
+        /*mediaStreamConstraints.video = false;*/
+    }
+    else
+    {
+        /*localMediaStream.active = true;*/
+        localMediaStream.getAudioTracks()[0] = localAudioTrack;
+        localMediaStream.getAudioTracks()[0].enabled = true;
+        micBox.setAttribute("src","img/unmuted.png");
+        /*mediaStreamConstraints.video = true;*/
+    }
+
+    getUserMediaSuccess(localMediaStream);
 }
 
 function createUserBox(userId)
@@ -42,9 +140,9 @@ function createUserBox(userId)
 }
 
 function gotIceCandidate(fromId, candidate) {
+    console.log('abc');
     connections[fromId].addIceCandidate(new RTCIceCandidate(candidate)).catch(handleError);
 }
-
 
 function startLocalStream() {
     navigator.mediaDevices.getUserMedia(mediaStreamConstraints)
@@ -54,8 +152,15 @@ function startLocalStream() {
 
 function connectSocketToSignaling() {
     const socket = io.connect('http://localhost:3000', { secure: true });
+    localUserId = socket.id;
+    mic_state[localUserId] = false;
+    video_state[localUserId] = false;
+
     socket.on('connect', () => {
         localUserId = socket.id;
+        mic_state[localUserId] = false;
+        video_state[localUserId] = false;
+
         console.log('localUser', localUserId);
         socket.on('user-joined', (data) => {
             gridView();
@@ -77,9 +182,11 @@ function connectSocketToSignaling() {
                         };
                         connections[userId].addStream(localStream);
                     }
-                });
 
+                });
+                console.log('abc');
                 if (data.count >= 2) {
+                    console.log('1');
                     connections[joinedUserId].createOffer(offerOptions).then((description) => {
                         connections[joinedUserId].setLocalDescription(description).then(() => {
                             console.log(socket.id, ' Send offer to ', joinedUserId);
@@ -103,6 +210,23 @@ function connectSocketToSignaling() {
         socket.on('signaling', (data) => {
             gotMessageFromSignaling(socket, data);
         });
+
+        socket.on("mc-changes-return", (data) => {
+            mic_state = data.mic;
+            video_state = data.vid;
+
+            /*console.log(mic_state);*/
+
+            const clients = data.clients;
+
+            if (Array.isArray(clients) && clients.length > 0)
+            {
+                clients.forEach((userId) =>
+                {
+                    manage_voice(userId);
+                });
+            }
+        })
     });
 }
 
@@ -133,9 +257,11 @@ function gotMessageFromSignaling(socket, data) {
                                                 description: connections[fromId].localDescription
                                             });
                                         });
+                                        console.log('2');
                                     })
                                     .catch(handleError);
                             }
+                            console.log('3');
                         })
                         .catch(handleError);
                 }
@@ -145,9 +271,21 @@ function gotMessageFromSignaling(socket, data) {
     }
 }
 
+var z = 0;
+
 function getUserMediaSuccess(mediaStream) {
+
+    if(z==0)
+    {
+        localMediaStream = mediaStream;
+        mediaStream.getVideoTracks()[0].enabled = false;
+        mediaStream.getAudioTracks()[0].enabled = false;
+    }
+
     localStream = mediaStream;
     localVideo.srcObject = mediaStream;
+    console.log(mediaStream);
+    z++;
 }
 
 function handleError(e) {
