@@ -1,9 +1,13 @@
 const express = require('express');
+var session = require('express-session');
 const server = express();
 const http = require('http').Server(server);
 const io = require('socket.io')(http);
+var cookieParser = require('cookie-parser');
+var bodyParser = require('body-parser');
+var morgan = require('morgan');
 
-server.use(express.static('public'));
+server.use(express.static('views'));
 
 const users = {};
 
@@ -11,9 +15,9 @@ http.listen(3000, () => {
     console.log('Server started at: 3000');
 });
 
-server.get('/', function(req, res){
-    res.sendFile(__dirname + '/index.html');
-});
+//server.get('/', function(req, res){
+  //  res.sendFile(__dirname + '/index.html');
+//});
 
 io.on('connection', function (socket) {
     io.sockets.emit('user-joined', { clients:  Object.keys(io.sockets.clients().sockets), count: io.engine.clientsCount, joinedUserId: socket.id});
@@ -44,6 +48,31 @@ io.on('connection', function (socket) {
     /*socket.emit('sql_config', {sql: connection})*/
 });
 
+var passport = require('passport');
+var flash = require('connect-flash');
+
+require('./config/passport')(passport);
+
+server.use(morgan('dev'));
+server.use(cookieParser());
+server.use(bodyParser.urlencoded({
+ extended: true
+}));
+
+server.set('view engine', 'ejs');
+
+server.use(session({
+ secret: 'justasecret',
+ resave:true,
+ saveUninitialized: true
+}));
+
+server.use(passport.initialize());
+server.use(passport.session());
+server.use(flash());
+
+require('./app/routes.js')(server, passport);
+
 //DATABAZA
 var mysql = require('mysql');
 var connection = mysql.createConnection({
@@ -62,13 +91,5 @@ connection.connect(function(err) {
 
 
 
-connection.query('SELECT * FROM login', function (error, results, fields) {
-    if (error)
-        throw error;
-
-    results.forEach(result => {
-        console.log(result);
-    });
-});
 
 connection.end();

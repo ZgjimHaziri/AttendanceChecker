@@ -13,7 +13,7 @@
       }
   
        var a= document.querySelector("table tr:nth-child(" + arg + ") td:nth-child(" + i + ")>a ");
-       a.setAttribute("href","index.html");
+       a.setAttribute("href","http://localhost:3000/index.html");
     } 
 
 

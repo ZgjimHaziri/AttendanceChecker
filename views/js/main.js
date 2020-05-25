@@ -131,7 +131,7 @@ function createUserBox(userId)
     nameBox.setAttribute('class','name');
 
     //duhet me e ndryshu kur te lidhim me databaze
-    nameBox.innerHTML = ' <%= user.name %> <%= user.lastName %>';
+    nameBox.innerHTML = "hhhhh";
     divBox.appendChild(nameBox);
 
     document.querySelector('.grid-container').appendChild(divBox);

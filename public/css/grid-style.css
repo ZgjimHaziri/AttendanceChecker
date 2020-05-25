@@ -2,7 +2,7 @@
 
 body
 {
-    background-color: #1b1b1b;
+    background-color: #202124;
 }
 .grid-container
 {
@@ -22,8 +22,9 @@ body
 
 .grid-item
 {
-    background-color: rgba(255, 255, 255, 0.8);
+   /* background-color: rgba(255, 255, 255, 0.8);*/
     /*border: 1px solid rgba(0, 0, 0, 0.8);*/
+    background-color: #202124;
     font-size: 30px;
     text-align: center;
     vertical-align: center;
@@ -237,7 +238,7 @@ body
 {
     position: fixed;
 
-    border: 1px solid;
+   
 
     max-width: 650px;
     max-height: 300px;
