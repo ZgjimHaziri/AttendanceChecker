@@ -64,7 +64,7 @@ table thead td
   .openbtn {
     font-size: 20px;
     cursor: pointer;
-    background-color: #484b6385;
+    background-color: #fff;
     color: white;
     padding: 10px 15px;
     border: none;
@@ -72,7 +72,7 @@ table thead td
   }
   
   .openbtn:hover {
-    background-color: #444;
+    background-color: #f8f9fa;
   }
   
   #main {
