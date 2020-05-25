@@ -6,11 +6,17 @@ const offerOptions = {
     offerToReceiveVideo: 1,
 };
 
+const gnames = ["Zgjim Haziri","Qendresa Bekaj","Loreta Shala","Vegim Shala","Behar Rexhepi"];
+
+let perdoruesit;
+
 const userContainer = document.getElementById("view-container");
 const localVideo = document.getElementById('localVideo');
 
 const micBox = document.getElementById("mic-icon");
 const camBox = document.getElementById("cam-icon");
+
+var emripalidhje = document.getElementById("tbody");
 
 let localStream;
 let localUserId;
@@ -62,6 +68,16 @@ function manage_voice(userId)
 
 function turnOnOffCam()
 {
+    const tr = document.createElement("tr");
+    tr.setAttribute("class","st");
+
+    const td1 = document.createElement("td");
+    const td2 = document.createElement("td");
+
+    td1.setAttribute("class","presence");
+
+
+    td2.setAttribute("class","presence");
     if(localMediaStream.getVideoTracks().length>0)
     {
         if (localMediaStream.getVideoTracks()[0].enabled)
@@ -73,9 +89,21 @@ function turnOnOffCam()
         }
         else
         {
+            for (let i = 0; i < gnames.length; i++)
+            {
+                if(localUserId===perdoruesit[i])
+                {
+                    tr.setAttribute("id","st"+(i+1));
+                    td1.innerText=gnames[i-1];
+                    td2.innerText="Prezent";
+                }
+            }
+
+
             localMediaStream.active = true;
             localMediaStream.getVideoTracks()[0].enabled = true;
             camBox.setAttribute("src","img/on-video.png");
+
         }
         /*mediaStreamConstraints.video = false;*/
     }
@@ -86,7 +114,21 @@ function turnOnOffCam()
         localMediaStream.getVideoTracks()[0].enabled = true;
         camBox.setAttribute("src","img/on-video.png");
         /*mediaStreamConstraints.video = true;*/
+
+        for (let i = 0; i < gnames.length; i++)
+        {
+            if(localUserId===perdoruesit[i])
+            {
+                tr.setAttribute("id","st"+(i+1));
+                td1.innerText=gnames[i-1];
+                td2.innerText="Prezent";
+            }
+        }
     }
+    tr.appendChild(td1);
+    tr.appendChild(td2);
+
+    document.getElementById("tbody").append(tr);
     console.log(camBox);
 
     getUserMediaSuccess(localMediaStream);
@@ -131,7 +173,7 @@ function createUserBox(userId)
     nameBox.setAttribute('class','name');
 
     //duhet me e ndryshu kur te lidhim me databaze
-    nameBox.innerHTML = "hhhhh";
+    /*nameBox.innerHTML = '<%= user.name %> <%= user.lastName %>' ;*/
     divBox.appendChild(nameBox);
 
     document.querySelector('.grid-container').appendChild(divBox);
@@ -167,6 +209,7 @@ function connectSocketToSignaling() {
             const clients = data.clients;
             const joinedUserId = data.joinedUserId;
             console.log(joinedUserId, ' joined');
+            perdoruesit = clients;
             if (Array.isArray(clients) && clients.length > 0) {
                 clients.forEach((userId) => {
                     if (!connections[userId]) {
