@@ -4,16 +4,9 @@ const messageForm = document.getElementById('chat-form');
 const messageInput = document.getElementById('msg');
 
 //Duhet me databaze
-import { sub, userN } from '../submits.js';
 
-const logSub = sub;
-console.log(logSub);
 
-logSub.addEventListener('submit', evt => {
-  const name = userN.innerText;
-});
-
-console.log(name);
+const name = "";
 socket.emit('new-user', name);
 
 socket.on('chat-message', data => {

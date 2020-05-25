@@ -11,6 +11,10 @@ server.use(express.static('views'));
 
 const users = {};
 
+const perdoruesit = ["Zgjim Haziri","Qendresa Bekaj","Loreta Shala","Vegim Shala","Behar Rexhepi","Erona Vrapcani","Arti Sadikaj","Rea Kasumi"];
+
+
+var z = 0;
 http.listen(3000, () => {
     console.log('Server started at: 3000');
 });
@@ -19,19 +23,22 @@ http.listen(3000, () => {
     res.sendFile(__dirname + '/index.html');
 });*/
 
+console.log(z);
 io.on('connection', function (socket) {
-    io.sockets.emit('user-joined', { clients:  Object.keys(io.sockets.clients().sockets), count: io.engine.clientsCount, joinedUserId: socket.id});
+    io.sockets.emit('user-joined', { clients:  Object.keys(io.sockets.clients().sockets), count: io.engine.clientsCount, joinedUserId: socket.id, joinedUsers: perdoruesit});
+    console.log(users);
     socket.on('signaling', function(data) {
         io.to(data.toId).emit('signaling', { fromId: socket.id, ...data });
     });
     socket.on('disconnect', function() {
         io.sockets.emit('user-left', socket.id)
-    })
+    });
 
     //prej chat-it
     socket.on('new-user', name => {
-        users[socket.id] = name;
-        socket.broadcast.emit('user-connected', name)
+        users[socket.id] = perdoruesit[z];
+        socket.broadcast.emit('user-connected', users[socket.id]);
+        z++;
     });
     socket.on('send-chat-message', message => {
         socket.broadcast.emit('chat-message', { message: message, name: users[socket.id] })
@@ -39,11 +46,11 @@ io.on('connection', function (socket) {
     socket.on('disconnect', () => {
         socket.broadcast.emit('user-disconnected', users[socket.id]);
         delete users[socket.id]
-    })
+    });
 
     socket.on('micCamChange',(data) => {
         socket.broadcast.emit('mc-changes-return', { mic: data.mic, vid: data.vid, clients: Object.keys(io.sockets.clients().sockets)});
-    })
+    });
 
     connection.query('SELECT * FROM users', function (error, results, fields) {
         if (error)
@@ -54,7 +61,19 @@ io.on('connection', function (socket) {
         results.forEach(result => {
         });
     });
+
 });
+
+/*const loogS = window.document.getElementById("login-submit");
+console.log(loogS);*/
+
+/*server.get('/loginhtml.html', function(req, res) {
+
+    var name = 'hello';
+
+    res.render(__dirname + "/views/loginhtml.html", {name:name});
+
+});*/
 
 var passport = require('passport');
 var flash = require('connect-flash');

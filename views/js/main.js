@@ -6,9 +6,7 @@ const offerOptions = {
     offerToReceiveVideo: 1,
 };
 
-const gnames = ["Zgjim Haziri","Qendresa Bekaj","Loreta Shala","Vegim Shala","Behar Rexhepi"];
-
-let perdoruesit;
+var perdoruesit = {};
 
 let login_table;
 
@@ -31,16 +29,17 @@ let localAudioTrack;
 var mic_state = { };
 var video_state = { };
 
-function gotRemoteStream(event, userId) {
+function gotRemoteStream(event, userId, username) {
 
     let remoteVideo  = document.createElement('video');
 
+    console.log(userId);
     remoteVideo.setAttribute('data-socket', userId);
     remoteVideo.srcObject   = event.stream;
     remoteVideo.autoplay    = true;
     remoteVideo.muted       = false;
     remoteVideo.playsinline = true;
-    createUserBox(userId).appendChild(remoteVideo);
+    createUserBox(userId,username).appendChild(remoteVideo);
     gridView();
 }
 
@@ -166,7 +165,7 @@ function turnOnOffMic()
     getUserMediaSuccess(localMediaStream);
 }
 
-function createUserBox(userId)
+function createUserBox(userId, username)
 {
     let divBox = document.createElement('div');
     divBox.setAttribute("class",'grid-item');
@@ -174,8 +173,8 @@ function createUserBox(userId)
     let nameBox = document.createElement('span');
     nameBox.setAttribute('class','name');
 
-    //duhet me e ndryshu kur te lidhim me databaze
-    /*nameBox.innerHTML = '<%= user.name %> <%= user.lastName %>' ;*/
+    //duhet me e ndryshu kur te lidhim me databaze hajt hajt se e lidh
+    nameBox.innerHTML = username;
     divBox.appendChild(nameBox);
 
     document.querySelector('.grid-container').appendChild(divBox);
@@ -194,6 +193,8 @@ function startLocalStream() {
         .then(connectSocketToSignaling).catch(handleError);
 }
 
+var t = 0;
+
 function connectSocketToSignaling() {
     const socket = io.connect('http://localhost:3000', { secure: true });
     localUserId = socket.id;
@@ -208,12 +209,21 @@ function connectSocketToSignaling() {
         console.log('localUser', localUserId);
         socket.on('user-joined', (data) => {
             gridView();
+
             const clients = data.clients;
             const joinedUserId = data.joinedUserId;
             console.log(joinedUserId, ' joined');
-            perdoruesit = clients;
+            t = 0;
+
+            /*var videot = document.querySelector('[data-socket]');
+            for (let i = 0; i < videot.length; i++)
+            {
+                perdoruesit[videot[i].getAttribute('data-socket')] = data.joinedUsers[i];
+            }*/
+
             if (Array.isArray(clients) && clients.length > 0) {
                 clients.forEach((userId) => {
+
                     if (!connections[userId]) {
                         connections[userId] = new RTCPeerConnection(mediaStreamConstraints);
                         connections[userId].onicecandidate = () => {
@@ -223,7 +233,9 @@ function connectSocketToSignaling() {
                             }
                         };
                         connections[userId].onaddstream = () => {
-                            gotRemoteStream(event, userId);
+                            console.log(userId);
+                            gotRemoteStream(event, userId, data.joinedUsers[t]);
+                            t++;
                         };
                         connections[userId].addStream(localStream);
                     }
@@ -271,12 +283,7 @@ function connectSocketToSignaling() {
                     manage_voice(userId);
                 });
             }
-        })
-
-        socket.on("sql_config", (data) => {
-            login_table = data.res;
-            console.log(login_table[0]['name']);
-        })
+        });
     });
 }
 
