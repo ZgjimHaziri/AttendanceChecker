@@ -1,15 +1,15 @@
 module.exports = function(app, passport) {
  app.get('/', function(req, res){
-  res.render('http://localhost:3000/login.ejs');
+  res.render('http://localhost:3000/loginhtml.html');
  });
 
  app.get('/login', function(req, res){
-  res.render('login.ejs', {message:req.flash('loginMessage')});
+  res.render('loginhtml.html', {message:req.flash('loginMessage')});
  });
 
  app.post('/login', passport.authenticate('local-login', {
   successRedirect: '/table',
-  failureRedirect: '/login',
+  failureRedirect: '/loginhtml.html',
   failureFlash: true
  }),
   function(req, res){
