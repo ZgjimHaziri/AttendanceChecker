@@ -40,6 +40,8 @@ io.on('connection', function (socket) {
     socket.on('micCamChange',(data) => {
         socket.broadcast.emit('mc-changes-return', { mic: data.mic, vid: data.vid, clients: Object.keys(io.sockets.clients().sockets)});
     })
+
+    /*socket.emit('sql_config', {sql: connection})*/
 });
 
 //DATABAZA
@@ -57,6 +59,8 @@ connection.connect(function(err) {
         return;
     }
 });
+
+
 
 connection.query('SELECT * FROM login', function (error, results, fields) {
     if (error)

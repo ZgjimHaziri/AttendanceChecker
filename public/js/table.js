@@ -13,9 +13,7 @@
       }
   
        var a= document.querySelector("table tr:nth-child(" + arg + ") td:nth-child(" + i + ")>a ");
-       a.setAttribute("href","https://www.google.com");
-
-
+       a.setAttribute("href","http://localhost:3000/");
     } 
 
 
