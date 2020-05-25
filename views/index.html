@@ -1,0 +1,176 @@
+<html>
+
+<head>
+    <title>Room</title>
+    <link rel="stylesheet" href="css/grid-style.css">
+    <link rel="stylesheet" href="css/main-style.css" />
+    <link rel="stylesheet" href="css/style.css" />
+    <link rel="stylesheet" href="css/sidebar.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css"
+        integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous" />
+    <script defer src="http://localhost:3000/socket.io/socket.io.js"></script>
+    <script defer src="js/client.js"></script>
+    <script>
+        function toggleButton() {
+            if (!document.getElementById("mySidebar").style.cssText !== '' && document.getElementById("mySidebar").style.width !== '1200px') {
+                document.getElementById("mySidebar").style.display='block';
+                document.getElementById("mySidebar").style.width = "1200px";
+                document.getElementById("main").style.marginLeft = "567px";
+                document.getElementById("mySidebar").style.height = "567px";
+                
+            }
+            else {
+                if (document.getElementById("mySidebar").style.width === "0px") {
+                    document.getElementById("mySidebar").style.width = "1200px";
+                    document.getElementById("main").style.marginLeft = "567px";
+                    document.getElementById("mySidebar").style.height = "567px";
+                }
+                else {
+                    document.getElementById("mySidebar").style.width = "0";
+                    document.getElementById("main").style.marginLeft = "0";
+                    document.getElementById("mytable").style.width = "0";
+                    document.getElementById("mytable").style.marginLeft = "0";          
+                }
+            }
+        }
+    </script>
+</head>
+
+<body>
+
+    <div id="mySidebar"  class="sidebar">
+        <p id="lenda">Programim i distribuar</p>
+        <table id="tableId">
+            <thead id="headTable">
+                <tr id="rowTable">
+                    <td id="emri">Emri dhe Mbiemri</td>
+                    <td id="java1">Java 1</td>
+                    <td id="java2">Java 2</td>
+                    <td id="java3">Java 3</td>
+                    <td id="java4">Java 4</td>
+                     <td id="java5">Java 5</td>
+                    <td id="java6">Java 6</td>
+                    <td id="java7">Java 7</td>
+                    <td id="java8">Java 8</td>
+                </tr>
+            </thead>
+            <tbody id="tbody">
+                <tr id="st1" class="st">
+                    <td class="presence">Filan Fisteku</td>
+                    <td class="presence"></td>
+                    <td class="presence"></td>
+                    <td class="presence"></td>
+                    <td class="presence"></td>
+                </tr>
+                <tr id="st2" class="st">
+                     <td class="presence">Filan Fisteku</td>
+                    <td class="presence"></td>
+                    <td class="presence"></td>
+                    <td class="presence"></td>
+                    <td class="presence"></td>
+                </tr>
+                <tr id="st3" class="st">
+                     <td class="presence">Filan Fisteku</td>
+                    <td class="presence"></td>
+                    <td class="presence"></td>
+                    <td class="presence"></td>
+                    <td class="presence"></td>
+                </tr>
+                <tr id="st4" class="st">
+                     <td class="presence">Filan Fisteku</td>
+                    <td class="presence"></td>
+                    <td class="presence"></td>
+                    <td class="presence"></td>
+                    <td class="presence"></td>
+                </tr>
+                <tr id="st5" class="st">
+                     <td class="presence">Filan Fisteku</td>
+                    <td class="presence"></td>
+                    <td class="presence"></td>
+                    <td class="presence"></td>
+                    <td class="presence"></td>
+                </tr>
+                <tr id="st6" class="st">
+                     <td class="presence">Filan Fisteku</td>
+                    <td class="presence"></td>
+                    <td class="presence"></td>
+                    <td class="presence"></td>
+                    <td class="presence"></td>
+                </tr>
+                <tr id="st7" class="st">
+                     <td class="presence">Filan Fisteku</td>
+                    <td class="presence"></td>
+                    <td class="presence"></td>
+                    <td class="presence"></td>
+                    <td class="presence"></td>
+                </tr>
+                <tr id="st8" class="st">
+                     <td class="presence">Filan Fisteku</td>
+                    <td class="presence"></td>
+                    <td class="presence"></td>
+                    <td class="presence"></td>
+                    <td class="presence"></td>
+                </tr>
+                
+            </tbody>
+        </table>
+    </div>
+
+    <div id="page-wrapper">
+        <div id="main">
+            <button class="openbtn" onclick="toggleButton()"><img src="img/users-icon.png" width="33px"
+                    height="33px" /></button>
+        </div>
+        <div class="grid-container" id="view-container">
+            <div class="grid-item" id="personal-box">
+                <span class="name">You</span>
+                <video id="localVideo" autoplay muted playsinline ></video>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        <div class="chat-icon" onclick="openChat();">
+            <img src='img/chat-icon.png' width="39px" height="39px" alt="chat" />
+        </div>
+        <div id="mic" onclick="turnOnOffMic()">
+            <img id="mic-icon" src='img/muted.png' width="39px" height="39px" alt="chat" />
+        </div>
+        <div id="camera" onclick="turnOnOffCam()">
+            <img id="cam-icon" src='img/off-video.png' width="39px" height="39px" alt="chat" />
+        </div>
+    </div>
+
+    <div class="chat-popup" id="myChat">
+        <div class="chat-container">
+            <header class="chat-header">
+                <h1><i class="fas fa-smile"></i> Chat</h1>
+                <a href="#" class="btn" onclick="closeChat();">x</a>
+            </header>
+            <main class="chat-main">
+                <div class="chat-sidebar">
+                    <h3><i class="fas fa-comments"></i> Room Name:</h3>
+                    <h2 id="room-name"></h2>
+                    <h3><i class="fas fa-users"></i> Users</h3>
+                    <ul id="users"></ul>
+                </div>
+                <div id="chat-messages"></div>
+            </main>
+            <div class="chat-form-container">
+                <form id="chat-form" method="post">
+                    <input id="msg" type="text" placeholder="Enter Message" required autocomplete="off"/>
+                    <button class="btn"><i class="fas fa-paper-plane"></i> Send</button>
+                </form>
+            </div>
+        </div>
+
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/qs/6.9.2/qs.min.js"
+            integrity="sha256-TDxXjkAUay70ae/QJBEpGKkpVslXaHHayklIVglFRT4=" crossorigin="anonymous"></script>
+    </div>
+</body>
+<script type="text/javascript" src="js/view-mode.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.1.0/socket.io.js"></script>
+<script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
+<script src="js/main.js"></script>
+<script src="js/main-script.js"></script>
+</html>
