@@ -8,6 +8,8 @@ const offerOptions = {
 
 var perdoruesit = {};
 
+let g
+
 let login_table;
 
 const userContainer = document.getElementById("view-container");
@@ -29,7 +31,7 @@ let localAudioTrack;
 var mic_state = { };
 var video_state = { };
 
-function gotRemoteStream(event, userId, username) {
+function gotRemoteStream(event, userId) {
 
     let remoteVideo  = document.createElement('video');
 
@@ -39,7 +41,7 @@ function gotRemoteStream(event, userId, username) {
     remoteVideo.autoplay    = true;
     remoteVideo.muted       = false;
     remoteVideo.playsinline = true;
-    createUserBox(userId,username).appendChild(remoteVideo);
+    createUserBox(userId).appendChild(remoteVideo);
     gridView();
 }
 
@@ -69,16 +71,6 @@ function manage_voice(userId)
 
 function turnOnOffCam()
 {
-    const tr = document.createElement("tr");
-    tr.setAttribute("class","st");
-
-    const td1 = document.createElement("td");
-    const td2 = document.createElement("td");
-
-    td1.setAttribute("class","presence");
-
-
-    td2.setAttribute("class","presence");
     if(localMediaStream.getVideoTracks().length>0)
     {
         if (localMediaStream.getVideoTracks()[0].enabled)
@@ -90,15 +82,13 @@ function turnOnOffCam()
         }
         else
         {
-            for (let i = 0; i < gnames.length; i++)
+            /*for (let i = 0; i < gnames.length; i++)
             {
                 if(localUserId===perdoruesit[i])
                 {
-                    tr.setAttribute("id","st"+(i+1));
-                    td1.innerText=gnames[i-1];
-                    td2.innerText="Prezent";
+
                 }
-            }
+            }*/
 
 
             localMediaStream.active = true;
@@ -116,7 +106,7 @@ function turnOnOffCam()
         camBox.setAttribute("src","img/on-video.png");
         /*mediaStreamConstraints.video = true;*/
 
-        for (let i = 0; i < gnames.length; i++)
+        /*for (let i = 0; i < gnames.length; i++)
         {
             if(localUserId===perdoruesit[i])
             {
@@ -124,12 +114,8 @@ function turnOnOffCam()
                 td1.innerText=gnames[i-1];
                 td2.innerText="Prezent";
             }
-        }
+        }*/
     }
-    tr.appendChild(td1);
-    tr.appendChild(td2);
-
-    document.getElementById("tbody").append(tr);
     console.log(camBox);
 
     getUserMediaSuccess(localMediaStream);
@@ -165,7 +151,7 @@ function turnOnOffMic()
     getUserMediaSuccess(localMediaStream);
 }
 
-function createUserBox(userId, username)
+function createUserBox(userId)
 {
     let divBox = document.createElement('div');
     divBox.setAttribute("class",'grid-item');
@@ -173,8 +159,7 @@ function createUserBox(userId, username)
     let nameBox = document.createElement('span');
     nameBox.setAttribute('class','name');
 
-    //duhet me e ndryshu kur te lidhim me databaze hajt hajt se e lidh
-    nameBox.innerHTML = username;
+    /*nameBox.innerHTML = perdoruesit[userId];*/
     divBox.appendChild(nameBox);
 
     document.querySelector('.grid-container').appendChild(divBox);
@@ -220,9 +205,12 @@ function connectSocketToSignaling() {
             {
                 perdoruesit[videot[i].getAttribute('data-socket')] = data.joinedUsers[i];
             }*/
+            //perdoruesit = data.joinedUsers;
 
             if (Array.isArray(clients) && clients.length > 0) {
                 clients.forEach((userId) => {
+
+
 
                     if (!connections[userId]) {
                         connections[userId] = new RTCPeerConnection(mediaStreamConstraints);
@@ -233,12 +221,11 @@ function connectSocketToSignaling() {
                             }
                         };
                         connections[userId].onaddstream = () => {
-                            console.log(userId);
-                            gotRemoteStream(event, userId, data.joinedUsers[t]);
-                            t++;
+                            gotRemoteStream(event, userId);
                         };
                         connections[userId].addStream(localStream);
                     }
+                    t++;
 
                 });
                 console.log('abc');
@@ -285,6 +272,11 @@ function connectSocketToSignaling() {
             }
         });
     });
+}
+
+function arrangeNames()
+{
+
 }
 
 function gotMessageFromSignaling(socket, data) {

@@ -13,7 +13,6 @@ const users = {};
 
 const perdoruesit = ["Zgjim Haziri","Qendresa Bekaj","Loreta Shala","Vegim Shala","Behar Rexhepi","Erona Vrapcani","Arti Sadikaj","Rea Kasumi"];
 
-
 var z = 0;
 http.listen(3000, () => {
     console.log('Server started at: 3000');
@@ -22,6 +21,9 @@ http.listen(3000, () => {
 /*server.get('/', function(req, res){
     res.sendFile(__dirname + '/index.html');
 });*/
+
+var ll = 0;
+var vs = 0;
 
 console.log(z);
 io.on('connection', function (socket) {
@@ -32,6 +34,16 @@ io.on('connection', function (socket) {
     });
     socket.on('disconnect', function() {
         io.sockets.emit('user-left', socket.id)
+    });
+
+    socket.on('add-presence', data => {
+        if(ll+1<=z)
+        {
+            ll++;
+        }
+
+        console.log(ll);
+        io.sockets.emit('presence-number', {prezenca: perdoruesit.slice(0,ll)});
     });
 
     //prej chat-it
