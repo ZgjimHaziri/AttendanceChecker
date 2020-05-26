@@ -15,9 +15,9 @@ http.listen(3000, () => {
     console.log('Server started at: 3000');
 });
 
-//server.get('/', function(req, res){
-  //  res.sendFile(__dirname + '/index.html');
-//});
+/*server.get('/', function(req, res){
+    res.sendFile(__dirname + '/index.html');
+});*/
 
 io.on('connection', function (socket) {
     io.sockets.emit('user-joined', { clients:  Object.keys(io.sockets.clients().sockets), count: io.engine.clientsCount, joinedUserId: socket.id});
@@ -45,7 +45,15 @@ io.on('connection', function (socket) {
         socket.broadcast.emit('mc-changes-return', { mic: data.mic, vid: data.vid, clients: Object.keys(io.sockets.clients().sockets)});
     })
 
-    /*socket.emit('sql_config', {sql: connection})*/
+    connection.query('SELECT * FROM users', function (error, results, fields) {
+        if (error)
+            throw error;
+
+        socket.emit('sql_config', {res: results});
+
+        results.forEach(result => {
+        });
+    });
 });
 
 var passport = require('passport');
@@ -88,8 +96,3 @@ connection.connect(function(err) {
         return;
     }
 });
-
-
-
-
-connection.end();

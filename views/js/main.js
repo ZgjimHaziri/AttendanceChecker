@@ -10,6 +10,8 @@ const gnames = ["Zgjim Haziri","Qendresa Bekaj","Loreta Shala","Vegim Shala","Be
 
 let perdoruesit;
 
+let login_table;
+
 const userContainer = document.getElementById("view-container");
 const localVideo = document.getElementById('localVideo');
 
@@ -269,6 +271,11 @@ function connectSocketToSignaling() {
                     manage_voice(userId);
                 });
             }
+        })
+
+        socket.on("sql_config", (data) => {
+            login_table = data.res;
+            console.log(login_table[0]['name']);
         })
     });
 }
