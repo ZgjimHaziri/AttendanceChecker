@@ -30,8 +30,8 @@ messageForm.addEventListener('submit', e => {
 });
 
 function appendMessage(message) {
-  console.log(messageInput.value);
   const messageElement = document.createElement('div');
+  messageElement.classList.add('chat-messages');
   messageElement.innerText = message;
   messageContainer.append(messageElement)
 }
