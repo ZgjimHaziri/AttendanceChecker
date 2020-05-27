@@ -18,6 +18,13 @@ http.listen(3000, () => {
 /*server.get('/', function(req, res){
     res.sendFile(__dirname + '/index.html');
 });*/
+server.get('/main', function(req, res) {
+
+  var name = 'hello';
+
+  res.render(__dirname + "/views/index.html", {name:name});
+
+});
 
 io.on('connection', function (socket) {
     io.sockets.emit('user-joined', { clients:  Object.keys(io.sockets.clients().sockets), count: io.engine.clientsCount, joinedUserId: socket.id});

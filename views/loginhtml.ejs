@@ -16,7 +16,9 @@
 			<header class="join-header">
 				<h1><i class="fas fa-sign-in-alt"></i> <span></span> Login </h1>
 
-				</header>
+				<% data.forEach(function(item, index)
+				{ %> <%= item.name %>><% }); %>
+			</header>
 			<main class="join-main">
 				<form action="/login" method="post">
 					<div class="form-control">
