@@ -6,9 +6,9 @@ const offerOptions = {
     offerToReceiveVideo: 1,
 };
 
-const gnames = ["Zgjim Haziri","Qendresa Bekaj","Loreta Shala","Vegim Shala","Behar Rexhepi"];
+var perdoruesit = {};
 
-let perdoruesit;
+let g
 
 let login_table;
 
@@ -35,6 +35,7 @@ function gotRemoteStream(event, userId) {
 
     let remoteVideo  = document.createElement('video');
 
+    console.log(userId);
     remoteVideo.setAttribute('data-socket', userId);
     remoteVideo.srcObject   = event.stream;
     remoteVideo.autoplay    = true;
@@ -70,16 +71,6 @@ function manage_voice(userId)
 
 function turnOnOffCam()
 {
-    const tr = document.createElement("tr");
-    tr.setAttribute("class","st");
-
-    const td1 = document.createElement("td");
-    const td2 = document.createElement("td");
-
-    td1.setAttribute("class","presence");
-
-
-    td2.setAttribute("class","presence");
     if(localMediaStream.getVideoTracks().length>0)
     {
         if (localMediaStream.getVideoTracks()[0].enabled)
@@ -91,15 +82,13 @@ function turnOnOffCam()
         }
         else
         {
-            for (let i = 0; i < gnames.length; i++)
+            /*for (let i = 0; i < gnames.length; i++)
             {
                 if(localUserId===perdoruesit[i])
                 {
-                    tr.setAttribute("id","st"+(i+1));
-                    td1.innerText=gnames[i-1];
-                    td2.innerText="Prezent";
+
                 }
-            }
+            }*/
 
 
             localMediaStream.active = true;
@@ -117,7 +106,7 @@ function turnOnOffCam()
         camBox.setAttribute("src","img/on-video.png");
         /*mediaStreamConstraints.video = true;*/
 
-        for (let i = 0; i < gnames.length; i++)
+        /*for (let i = 0; i < gnames.length; i++)
         {
             if(localUserId===perdoruesit[i])
             {
@@ -125,12 +114,8 @@ function turnOnOffCam()
                 td1.innerText=gnames[i-1];
                 td2.innerText="Prezent";
             }
-        }
+        }*/
     }
-    tr.appendChild(td1);
-    tr.appendChild(td2);
-
-    document.getElementById("tbody").append(tr);
     console.log(camBox);
 
     getUserMediaSuccess(localMediaStream);
@@ -174,8 +159,7 @@ function createUserBox(userId)
     let nameBox = document.createElement('span');
     nameBox.setAttribute('class','name');
 
-    //duhet me e ndryshu kur te lidhim me databaze
-    /*nameBox.innerHTML = '<%= user.name %> <%= user.lastName %>' ;*/
+    /*nameBox.innerHTML = perdoruesit[userId];*/
     divBox.appendChild(nameBox);
 
     document.querySelector('.grid-container').appendChild(divBox);
@@ -194,6 +178,8 @@ function startLocalStream() {
         .then(connectSocketToSignaling).catch(handleError);
 }
 
+var t = 0;
+
 function connectSocketToSignaling() {
     const socket = io.connect('http://localhost:3000', { secure: true });
     localUserId = socket.id;
@@ -208,12 +194,24 @@ function connectSocketToSignaling() {
         console.log('localUser', localUserId);
         socket.on('user-joined', (data) => {
             gridView();
+
             const clients = data.clients;
             const joinedUserId = data.joinedUserId;
             console.log(joinedUserId, ' joined');
-            perdoruesit = clients;
+            t = 0;
+
+            /*var videot = document.querySelector('[data-socket]');
+            for (let i = 0; i < videot.length; i++)
+            {
+                perdoruesit[videot[i].getAttribute('data-socket')] = data.joinedUsers[i];
+            }*/
+            //perdoruesit = data.joinedUsers;
+
             if (Array.isArray(clients) && clients.length > 0) {
                 clients.forEach((userId) => {
+
+
+
                     if (!connections[userId]) {
                         connections[userId] = new RTCPeerConnection(mediaStreamConstraints);
                         connections[userId].onicecandidate = () => {
@@ -227,6 +225,7 @@ function connectSocketToSignaling() {
                         };
                         connections[userId].addStream(localStream);
                     }
+                    t++;
 
                 });
                 console.log('abc');
@@ -271,13 +270,13 @@ function connectSocketToSignaling() {
                     manage_voice(userId);
                 });
             }
-        })
-
-        socket.on("sql_config", (data) => {
-            login_table = data.res;
-            console.log(login_table[0]['name']);
-        })
+        });
     });
+}
+
+function arrangeNames()
+{
+
 }
 
 function gotMessageFromSignaling(socket, data) {

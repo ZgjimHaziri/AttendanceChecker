@@ -7,9 +7,7 @@
 		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous"/>
 		<link rel="stylesheet" href="css/main-style.css" />
 		<title>ChatCord App</title>
-
-		<script src="js/client.js"></script>
-		<script type="module" src="submits.js"></script>
+		<script defer src="http://localhost:3000/socket.io/socket.io.js"></script>
 	</head>
 	<body>
 		<div class="join-container">
@@ -31,6 +29,7 @@
 					</div>
 					<button id="login-submit" type="submit" class="btn">Join Class</button>
 				</form>
+				<!--<h1><%= name %></h1>-->
 			</main>
 		</div>
 	</body>
