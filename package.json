@@ -24,7 +24,7 @@
     "passport": "^0.2.2",
     "passport-local": "^1.0.0",
     "webpack-dev-server": "^3.11.0",
-    "socket.io": "^2.3.0"
+    "socket.io": "^2.4.0"
   },
   "devDependencies": {
     "mysql-import": "^4.0.24",
