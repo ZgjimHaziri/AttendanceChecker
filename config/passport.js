@@ -1,89 +1,115 @@
-var LocalStrategy = require("passport-local").Strategy;
+'use strict';
 
-var mysql = require('mysql');
-var bcrypt = require('bcrypt-nodejs');
-var dbconfig = require('./database');
-var connection = mysql.createConnection(dbconfig.connection);
+const LocalStrategy = require('passport-local').Strategy;
+const bcrypt = require('bcryptjs');
+const db = require('../db');
 
-connection.query('USE ' + dbconfig.database);
+module.exports = function configurePassport(passport) {
+  passport.serializeUser((user, done) => {
+    done(null, user.id);
+  });
 
-module.exports = function(passport) {
- passport.serializeUser(function(user, done){
-  done(null, user.id);
- });
-
- passport.deserializeUser(function(id, done){
-  connection.query("SELECT * FROM users WHERE id = ? ", [id],
-   function(err, rows){
-    done(err, rows[0]);
-   });
- });
-  passport.deserializeUser(function(name, done){
-  connection.query("SELECT * FROM users WHERE id = ? ", [name],
-   function(err, rows){
-    done(err, rows[0]);
-   });
- });
-   passport.deserializeUser(function(lastName, done){
-  connection.query("SELECT * FROM users WHERE id = ? ", [lastName],
-   function(err, rows){
-    done(err, rows[0]);
-   });
- });
-
- passport.use(
-  'local-signup',
-  new LocalStrategy({
-   usernameField : 'username',
-   passwordField: 'password',
-   passReqToCallback: true
-  },
-  function(req, username, password, done){
-   connection.query("SELECT * FROM users WHERE username = ? ", 
-   [username], function(err, rows){
-    if(err)
-     return done(err);
-    if(rows.length){
-     return done(null, false, req.flash('signupMessage', 'That is already taken'));
-    }else{
-     var newUserMysql = {
-      username: username,
-      password: bcrypt.hashSync(password, null, null)
-     };
-
-     var insertQuery = "INSERT INTO users (username, password) values (?, ?)";
-
-     connection.query(insertQuery, [newUserMysql.username, newUserMysql.password],
-      function(err, rows){
-       newUserMysql.id = rows.insertId;
-
-       return done(null, newUserMysql);
-      });
+  passport.deserializeUser(async (id, done) => {
+    try {
+      const [rows] = await db.query(
+        'SELECT id, email, name, lastName FROM users WHERE id = ? LIMIT 1',
+        [id]
+      );
+      done(null, rows[0] || false);
+    } catch (err) {
+      done(err);
     }
-   });
-  })
- );
+  });
 
- passport.use(
-  'local-login',
-  new LocalStrategy({
-   usernameField : 'username',
-   passwordField: 'password',
-   passReqToCallback: true
-  },
-  function(req, username, password, done){
-   connection.query("SELECT * FROM users WHERE username = ? ", [username],
-   function(err, rows){
-    if(err)
-     return done(err);
-    if(!rows.length){
-     return done(null, false, req.flash('loginMessage', 'No User Found'));
-    }
-    if(!(password == rows[0].password))
-     return done(null, false, req.flash('loginMessage', 'Wrong Password'));
+  passport.use(
+    'local-login',
+    new LocalStrategy(
+      {
+        usernameField: 'username',
+        passwordField: 'password',
+        passReqToCallback: true,
+      },
+      async (req, username, password, done) => {
+        try {
+          const email = String(username || '').trim().toLowerCase();
+          const [rows] = await db.query(
+            'SELECT * FROM users WHERE email = ? LIMIT 1',
+            [email]
+          );
 
-    return done(null, rows[0]);
-   });
-  })
- );
+          if (!rows.length) {
+            return done(null, false, req.flash('loginMessage', 'No user found'));
+          }
+
+          const user = rows[0];
+          const ok = await bcrypt.compare(password, user.password);
+          if (!ok) {
+            return done(null, false, req.flash('loginMessage', 'Wrong password'));
+          }
+
+          return done(null, {
+            id: user.id,
+            email: user.email,
+            name: user.name,
+            lastName: user.lastName,
+          });
+        } catch (err) {
+          return done(err);
+        }
+      }
+    )
+  );
+
+  passport.use(
+    'local-signup',
+    new LocalStrategy(
+      {
+        usernameField: 'username',
+        passwordField: 'password',
+        passReqToCallback: true,
+      },
+      async (req, username, password, done) => {
+        try {
+          const email = String(username || '').trim().toLowerCase();
+          const name = String(req.body.name || '').trim();
+          const lastName = String(req.body.lastName || '').trim();
+
+          if (!email || !password || !name || !lastName) {
+            return done(
+              null,
+              false,
+              req.flash('signupMessage', 'All fields are required')
+            );
+          }
+
+          const [existing] = await db.query(
+            'SELECT id FROM users WHERE email = ? LIMIT 1',
+            [email]
+          );
+          if (existing.length) {
+            return done(
+              null,
+              false,
+              req.flash('signupMessage', 'That email is already taken')
+            );
+          }
+
+          const hash = await bcrypt.hash(password, 12);
+          const [result] = await db.query(
+            'INSERT INTO users (email, password, name, lastName) VALUES (?, ?, ?, ?)',
+            [email, hash, name, lastName]
+          );
+
+          return done(null, {
+            id: result.insertId,
+            email,
+            name,
+            lastName,
+          });
+        } catch (err) {
+          return done(err);
+        }
+      }
+    )
+  );
 };

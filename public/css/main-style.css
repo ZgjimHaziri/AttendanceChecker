@@ -217,3 +217,4 @@ video
 	max-height:100%;
 	width: 650px;
 }
+.flash-error{color:#b00020;margin-bottom:1rem}.auth-switch,.auth-hint{margin-top:1rem;text-align:center}.table-header{display:flex;justify-content:space-between;align-items:center;padding:1rem 1.5rem}.table-header a{margin-left:1rem}.back-link{margin-left:.75rem;color:inherit}.sidebar-user{padding:0 1rem;opacity:.85}

@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title><%= title %></title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous" />
+  <link rel="stylesheet" href="/css/main-style.css" />
+</head>
+<body>
+  <div class="join-container">
+    <header class="join-header">
+      <h1><i class="fas fa-user-plus"></i> Sign up</h1>
+    </header>
+    <main class="join-main">
+      <% if (message && message.length) { %>
+        <p class="flash-error"><%= message %></p>
+      <% } %>
+      <form action="/signup" method="post">
+        <div class="form-control">
+          <label for="name">First name</label>
+          <input type="text" name="name" id="name" required />
+        </div>
+        <div class="form-control">
+          <label for="lastName">Last name</label>
+          <input type="text" name="lastName" id="lastName" required />
+        </div>
+        <div class="form-control">
+          <label for="username">Email</label>
+          <input type="email" name="username" id="username" required autocomplete="username" />
+        </div>
+        <div class="form-control">
+          <label for="password">Password</label>
+          <input type="password" name="password" id="password" minlength="4" required autocomplete="new-password" />
+        </div>
+        <button type="submit" class="btn">Create account</button>
+      </form>
+      <p class="auth-switch">Already registered? <a href="/login">Login</a></p>
+    </main>
+  </div>
+</body>
+</html>

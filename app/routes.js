@@ -1,51 +1,75 @@
-module.exports = function(app, passport) {
- app.get('/', function(req, res){
-  res.render('http://localhost:3000/loginhtml.html');
- });
+'use strict';
 
- app.get('/login', function(req, res){
-  res.render('loginhtml.html', {message:req.flash('loginMessage')});
- });
-
- app.post('/login', passport.authenticate('local-login', {
-  successRedirect: '/table',
-  failureRedirect: '/loginhtml.html',
-  failureFlash: true
- }),
-  function(req, res){
-   if(req.body.remember){
-    req.session.cookie.maxAge = 1000 * 60 * 3;
-   }else{
-    req.session.cookie.expires = false;
-   }
-   res.redirect('/');
-  });
-
- app.get('/signup', function(req, res){
-  res.render('signup.ejs', {message: req.flash('signupMessage')});
- });
-
- app.post('/signup', passport.authenticate('local-signup', {
-  successRedirect: '/table',
-  failureRedirect: '/signup',
-  failureFlash: true
- }));
-
- app.get('/table', isLoggedIn, function(req, res){
-  res.render('table.ejs', {
-   user:req.user
-  });
- });
-
- app.get('/logout', function(req,res){
-  req.logout();
-  res.redirect('/');
- })
-};
-
-function isLoggedIn(req, res, next){
- if(req.isAuthenticated())
-  return next();
-
- res.redirect('/');
+function isLoggedIn(req, res, next) {
+  if (req.isAuthenticated()) {
+    return next();
+  }
+  return res.redirect('/login');
 }
+
+module.exports = function registerRoutes(app, passport) {
+  app.get('/', (req, res) => {
+    if (req.isAuthenticated()) {
+      return res.redirect('/table');
+    }
+    return res.redirect('/login');
+  });
+
+  app.get('/login', (req, res) => {
+    res.render('login', {
+      message: req.flash('loginMessage'),
+      title: 'Attendance Checker — Login',
+    });
+  });
+
+  app.post(
+    '/login',
+    passport.authenticate('local-login', {
+      successRedirect: '/table',
+      failureRedirect: '/login',
+      failureFlash: true,
+    })
+  );
+
+  app.get('/signup', (req, res) => {
+    res.render('signup', {
+      message: req.flash('signupMessage'),
+      title: 'Attendance Checker — Sign up',
+    });
+  });
+
+  app.post(
+    '/signup',
+    passport.authenticate('local-signup', {
+      successRedirect: '/table',
+      failureRedirect: '/signup',
+      failureFlash: true,
+    })
+  );
+
+  app.get('/table', isLoggedIn, (req, res) => {
+    res.render('table', {
+      user: req.user,
+      title: 'Orari',
+    });
+  });
+
+  app.get('/room', isLoggedIn, (req, res) => {
+    res.render('room', {
+      user: req.user,
+      appUrl: process.env.APP_URL || `http://localhost:${process.env.PORT || 3000}`,
+      title: 'Classroom',
+    });
+  });
+
+  app.get('/logout', (req, res, next) => {
+    req.logout((err) => {
+      if (err) {
+        return next(err);
+      }
+      req.session.destroy(() => {
+        res.redirect('/login');
+      });
+    });
+  });
+};

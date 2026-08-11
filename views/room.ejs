@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title><%= title %></title>
+  <link rel="stylesheet" href="/css/grid-style.css" />
+  <link rel="stylesheet" href="/css/main-style.css" />
+  <link rel="stylesheet" href="/css/sidebar.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous" />
+  <script>
+    window.APP_CONFIG = {
+      appUrl: <%- JSON.stringify(appUrl) %>,
+      user: {
+        id: <%- JSON.stringify(user.id) %>,
+        name: <%- JSON.stringify(user.name) %>,
+        lastName: <%- JSON.stringify(user.lastName) %>,
+        email: <%- JSON.stringify(user.email) %>
+      }
+    };
+  </script>
+</head>
+<body>
+  <div id="mySidebar" class="sidebar">
+    <p id="lenda">Programim i distribuar</p>
+    <p class="sidebar-user"><%= user.name %> <%= user.lastName %></p>
+    <table id="tableId">
+      <thead id="headTable">
+        <tr id="rowTable">
+          <td id="emri">Emri dhe Mbiemri</td>
+          <td>Status</td>
+        </tr>
+      </thead>
+      <tbody id="tbody"></tbody>
+    </table>
+  </div>
+
+  <div id="page-wrapper">
+    <div id="main">
+      <button type="button" class="openbtn" onclick="toggleButton()" aria-label="Toggle attendance sidebar">
+        <img src="/img/users-icon.png" width="33" height="33" alt="" />
+      </button>
+      <a class="back-link" href="/table">← Orari</a>
+      <a class="back-link" href="/logout">Logout</a>
+    </div>
+    <div class="grid-container" id="view-container">
+      <div class="grid-item" id="personal-box">
+        <span class="name">You (<%= user.name %>)</span>
+        <video id="localVideo" autoplay muted playsinline></video>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <div class="chat-icon" onclick="openChat();" role="button" tabindex="0" aria-label="Open chat">
+      <img src="/img/chat-icon.png" width="39" height="39" alt="" />
+    </div>
+    <div id="mic" onclick="turnOnOffMic()" role="button" tabindex="0" aria-label="Toggle microphone">
+      <img id="mic-icon" src="/img/muted.png" width="39" height="39" alt="" />
+    </div>
+    <div id="camera" onclick="turnOnOffCam()" role="button" tabindex="0" aria-label="Toggle camera">
+      <img id="cam-icon" src="/img/off-video.png" width="39" height="39" alt="" />
+    </div>
+  </div>
+
+  <div class="chat-popup" id="myChat" hidden>
+    <div class="chat-container">
+      <header class="chat-header">
+        <h1>Chat</h1>
+        <button type="button" class="btn" onclick="closeChat();" aria-label="Close chat">x</button>
+      </header>
+      <main class="chat-main">
+        <div class="message" id="chat-messages"></div>
+      </main>
+      <div class="chat-form-container">
+        <form id="chat-form">
+          <input id="msg" type="text" placeholder="Type a message…" required autocomplete="off" maxlength="2000" />
+          <button class="btn" type="submit">Send</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="/js/view-mode.js"></script>
+  <script src="/js/client.js"></script>
+  <script src="/js/main.js"></script>
+</body>
+</html>

@@ -1,129 +1,148 @@
+'use strict';
+
+require('dotenv').config();
+
+const path = require('path');
+const http = require('http');
 const express = require('express');
-var session = require('express-session');
-const server = express();
-const http = require('http').Server(server);
-const io = require('socket.io')(http);
-var cookieParser = require('cookie-parser');
-var bodyParser = require('body-parser');
-var morgan = require('morgan');
+const session = require('express-session');
+const cookieParser = require('cookie-parser');
+const morgan = require('morgan');
+const flash = require('connect-flash');
+const passport = require('passport');
+const { Server } = require('socket.io');
 
-server.use(express.static('views'));
+const db = require('./db');
+const configurePassport = require('./config/passport');
 
-const users = {};
+const PORT = Number(process.env.PORT || 3000);
+const SESSION_SECRET = process.env.SESSION_SECRET || 'dev-only-insecure-secret';
 
-const perdoruesit = ["Zgjim Haziri","Qendresa Bekaj","Loreta Shala","Vegim Shala","Behar Rexhepi","Erona Vrapcani","Arti Sadikaj","Rea Kasumi"];
+if (!process.env.SESSION_SECRET) {
+  console.warn(
+    '[warn] SESSION_SECRET is not set — using an insecure default. Copy .env.example to .env.'
+  );
+}
 
-var z = 0;
-http.listen(3000, () => {
-    console.log('Server started at: 3000');
+const app = express();
+const server = http.createServer(app);
+const io = new Server(server, {
+  cors: {
+    origin: process.env.APP_URL || `http://localhost:${PORT}`,
+    methods: ['GET', 'POST'],
+  },
 });
 
-/*server.get('/', function(req, res){
-    res.sendFile(__dirname + '/index.html');
-});*/
+configurePassport(passport);
 
-var ll = 0;
-var vs = 0;
+app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, 'views'));
 
-console.log(z);
-io.on('connection', function (socket) {
-    io.sockets.emit('user-joined', { clients:  Object.keys(io.sockets.clients().sockets), count: io.engine.clientsCount, joinedUserId: socket.id, joinedUsers: perdoruesit});
-    console.log(users);
-    socket.on('signaling', function(data) {
-        io.to(data.toId).emit('signaling', { fromId: socket.id, ...data });
-    });
-    socket.on('disconnect', function() {
-        io.sockets.emit('user-left', socket.id)
-    });
+app.use(morgan(process.env.NODE_ENV === 'production' ? 'combined' : 'dev'));
+app.use(cookieParser());
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
+app.use(express.static(path.join(__dirname, 'public')));
 
-    socket.on('add-presence', data => {
-        if(ll+1<=z)
-        {
-            ll++;
-        }
+app.use(
+  session({
+    secret: SESSION_SECRET,
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      httpOnly: true,
+      sameSite: 'lax',
+      maxAge: 1000 * 60 * 60 * 8,
+    },
+  })
+);
 
-        console.log(ll);
-        io.sockets.emit('presence-number', {prezenca: perdoruesit.slice(0,ll)});
-    });
+app.use(passport.initialize());
+app.use(passport.session());
+app.use(flash());
 
-    //prej chat-it
-    socket.on('new-user', name => {
-        users[socket.id] = perdoruesit[z];
-        socket.broadcast.emit('user-connected', users[socket.id]);
-        z++;
-    });
-    socket.on('send-chat-message', message => {
-        socket.broadcast.emit('chat-message', { message: message, name: users[socket.id] })
-    });
-    socket.on('disconnect', () => {
-        socket.broadcast.emit('user-disconnected', users[socket.id]);
-        delete users[socket.id]
-    });
+require('./app/routes')(app, passport);
 
-    socket.on('micCamChange',(data) => {
-        socket.broadcast.emit('mc-changes-return', { mic: data.mic, vid: data.vid, clients: Object.keys(io.sockets.clients().sockets)});
-    });
+const usersBySocket = new Map();
 
-    connection.query('SELECT * FROM users', function (error, results, fields) {
-        if (error)
-            throw error;
+io.on('connection', (socket) => {
+  socket.emit('user-joined', {
+    clients: [...io.sockets.sockets.keys()],
+    count: io.engine.clientsCount,
+    joinedUserId: socket.id,
+  });
 
-        socket.emit('sql_config', {res: results});
+  socket.on('new-user', (payload = {}) => {
+    const displayName =
+      typeof payload === 'string'
+        ? payload
+        : [payload.name, payload.lastName].filter(Boolean).join(' ').trim() ||
+          payload.email ||
+          'Guest';
 
-        results.forEach(result => {
-        });
-    });
+    usersBySocket.set(socket.id, displayName);
+    socket.broadcast.emit('user-connected', { id: socket.id, name: displayName });
+  });
 
-});
-
-/*const loogS = window.document.getElementById("login-submit");
-console.log(loogS);*/
-
-/*server.get('/loginhtml.html', function(req, res) {
-
-    var name = 'hello';
-
-    res.render(__dirname + "/views/loginhtml.html", {name:name});
-
-});*/
-
-var passport = require('passport');
-var flash = require('connect-flash');
-
-require('./config/passport')(passport);
-
-server.use(morgan('dev'));
-server.use(cookieParser());
-server.use(bodyParser.urlencoded({
- extended: true
-}));
-
-server.set('view engine', 'ejs');
-
-server.use(session({
- secret: 'justasecret',
- resave:true,
- saveUninitialized: true
-}));
-
-server.use(passport.initialize());
-server.use(passport.session());
-server.use(flash());
-
-require('./app/routes.js')(server, passport);
-
-//DATABAZA
-var mysql = require('mysql');
-var connection = mysql.createConnection({
-    host     : 'localhost',
-    database : 'pd',
-    user     : 'root',
-    password : ''
-});
-
-connection.connect(function(err) {
-    if (err) {
-        console.error('Error connecting: ' + err.stack);
-        return;
+  socket.on('send-chat-message', (message) => {
+    const name = usersBySocket.get(socket.id) || 'Guest';
+    const text = String(message || '').slice(0, 2000);
+    if (!text) {
+      return;
     }
+    socket.broadcast.emit('chat-message', { message: text, name, fromId: socket.id });
+  });
+
+  socket.on('add-presence', async () => {
+    try {
+      const present = [...usersBySocket.values()];
+      io.emit('presence-number', { prezenca: present });
+    } catch (err) {
+      console.error('presence update failed', err);
+    }
+  });
+
+  socket.on('signaling', (data = {}) => {
+    if (!data.toId) {
+      return;
+    }
+    io.to(data.toId).emit('signaling', { fromId: socket.id, ...data });
+  });
+
+  socket.on('micCamChange', (data = {}) => {
+    socket.broadcast.emit('mc-changes-return', {
+      mic: data.mic,
+      vid: data.vid,
+      fromId: socket.id,
+      clients: [...io.sockets.sockets.keys()],
+    });
+  });
+
+  socket.on('disconnect', () => {
+    const name = usersBySocket.get(socket.id);
+    usersBySocket.delete(socket.id);
+    socket.broadcast.emit('user-left', socket.id);
+    if (name) {
+      socket.broadcast.emit('user-disconnected', { id: socket.id, name });
+    }
+    io.emit('presence-number', { prezenca: [...usersBySocket.values()] });
+  });
 });
+
+async function start() {
+  try {
+    await db.query('SELECT 1');
+    console.log('MySQL connection OK');
+  } catch (err) {
+    console.warn(
+      '[warn] MySQL is not reachable yet — login/signup will fail until the DB is up:',
+      err.message
+    );
+  }
+
+  server.listen(PORT, () => {
+    console.log(`Attendance Checker listening on http://localhost:${PORT}`);
+  });
+}
+
+start();
